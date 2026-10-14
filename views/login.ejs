@@ -1,0 +1,38 @@
+<%- include('partials/auth-open', { flow: 'login', current: 0, topRight: '¿Aún no tienes cuenta? <a href="/registro">Crear cuenta</a>' }) %>
+<h1>Inicia sesión</h1>
+<p class="lead">Escribe tu correo y tu contraseña. Después te pediremos un código de verificación.</p>
+
+<% if (error) { %>
+<div class="alert alert-error mt-md" role="alert"><%- include('partials/icon', { name: 'alert' }) %><span><%= error %></span></div>
+<% } %>
+
+<form method="post" action="/login" novalidate data-loading>
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <div class="field">
+    <label for="email">Correo electrónico</label>
+    <input id="email" name="email" type="email" autocomplete="username" required value="<%= email %>" autofocus <% if (error) { %>aria-invalid="true"<% } %>>
+  </div>
+  <div class="field">
+    <div class="label-row"><label for="password">Contraseña</label></div>
+    <div class="pw-wrap">
+      <input id="password" name="password" type="password" autocomplete="current-password" required <% if (error) { %>aria-invalid="true"<% } %>>
+      <button type="button" class="pw-toggle" data-toggle-pw="password" aria-label="Mostrar contraseña">Mostrar</button>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="btn btn-primary btn-block" type="submit"><span class="spinner" aria-hidden="true"></span>Continuar</button>
+  </div>
+</form>
+
+<% if (demoMode) { %>
+<div class="demo-note">
+  <b>Cuentas de prueba</b> para la demostración. Los códigos llegan a la <a href="/demo/bandeja" target="_blank" rel="noopener">bandeja de demostración</a>.
+  <dl>
+    <dt>Usuario</dt><dd>ana@ceiba.test</dd>
+    <dt>Clave</dt><dd>Quetzal#Lago2026</dd>
+    <dt>Admin</dt><dd>admin@ceiba.test</dd>
+    <dt>Clave</dt><dd>Jade#Volcan2026</dd>
+  </dl>
+</div>
+<% } %>
+<%- include('partials/auth-close') %>

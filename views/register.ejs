@@ -1,0 +1,46 @@
+<%- include('partials/auth-open', { flow: 'registro', current: 0, topRight: '¿Ya tienes cuenta? <a href="/login">Inicia sesión</a>' }) %>
+<h1>Crea tu cuenta</h1>
+<p class="lead">Después de este paso vas a configurar tu segundo factor de verificación.</p>
+
+<% if (errors.length) { %>
+<div class="alert alert-error mt-md" role="alert"><%- include('partials/icon', { name: 'alert' }) %>
+  <div><b>Revisa estos puntos:</b><ul><% errors.forEach(function(e){ %><li><%= e %></li><% }) %></ul></div>
+</div>
+<% } %>
+
+<form method="post" action="/registro" novalidate data-loading>
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <div class="field">
+    <label for="name">Nombre completo</label>
+    <input id="name" name="name" type="text" autocomplete="name" required maxlength="80" value="<%= values.name || '' %>" autofocus>
+  </div>
+  <div class="field">
+    <label for="email">Correo electrónico</label>
+    <input id="email" name="email" type="email" autocomplete="email" required value="<%= values.email || '' %>">
+  </div>
+  <div class="field">
+    <label for="password">Contraseña</label>
+    <div class="pw-wrap">
+      <input id="password" name="password" type="password" autocomplete="new-password" required minlength="10" maxlength="128" data-strength aria-describedby="pw-rules">
+      <button type="button" class="pw-toggle" data-toggle-pw="password" aria-label="Mostrar contraseña">Mostrar</button>
+    </div>
+    <div class="meter" data-meter data-score="0"><i></i></div>
+    <div class="meter-label" data-meter-label aria-live="polite"></div>
+    <ul class="rules" id="pw-rules">
+      <li data-rule="len">10 caracteres o más</li>
+      <li data-rule="case">Mayúsculas y minúsculas</li>
+      <li data-rule="num">Al menos un número</li>
+      <li data-rule="sym">Al menos un símbolo</li>
+    </ul>
+  </div>
+  <div class="field">
+    <label for="password2">Repite la contraseña</label>
+    <input id="password2" name="password2" type="password" autocomplete="new-password" required data-match="password">
+    <span class="hint" data-match-msg aria-live="polite"></span>
+  </div>
+  <div class="actions">
+    <button class="btn btn-primary btn-block" type="submit"><span class="spinner" aria-hidden="true"></span>Crear cuenta y continuar</button>
+  </div>
+  <p class="faint mt-sm">Revisamos tu contraseña contra filtraciones públicas sin enviarla: solo se compara un fragmento de su huella (k-anonimato).</p>
+</form>
+<%- include('partials/auth-close') %>

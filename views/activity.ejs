@@ -1,0 +1,26 @@
+<%- include('partials/app-open') %>
+<div class="page-head">
+  <div>
+    <h1>Actividad de seguridad</h1>
+    <p class="lead">Cada intento de acceso y cada cambio en tu cuenta queda registrado. Si ves algo que no reconoces, cambia tu contraseña.</p>
+  </div>
+</div>
+<section class="panel">
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Evento</th><th>Nivel</th><th>Fecha</th><th>IP</th><th>Detalle</th></tr></thead>
+      <tbody>
+        <% activity.forEach(function(a){ %>
+        <tr>
+          <td><%= label(a.event) %></td>
+          <td><span class="sev sev-<%= a.severity %>"><%= a.severity %></span></td>
+          <td class="nowrap"><%= fmtDate(a.created_at) %></td>
+          <td class="ip"><%= a.ip %></td>
+          <td class="faint"><%= a.detail || '' %></td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<%- include('partials/app-close') %>

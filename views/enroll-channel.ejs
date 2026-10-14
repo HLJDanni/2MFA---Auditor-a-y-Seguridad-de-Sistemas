@@ -1,0 +1,46 @@
+<%- include('partials/shell-open') %>
+<div class="<%= setupMode ? '' : 'panel narrow' %>">
+  <% if (!sent) { %>
+    <h1><%= type === 'email' ? 'Recibe tus códigos por correo' : 'Recibe tus códigos por SMS' %></h1>
+    <p class="lead"><%= type === 'email' ? 'Confirma el correo donde quieres recibir los códigos de verificación.' : 'Escribe tu número de celular. Te enviaremos un código para confirmar que es tuyo.' %></p>
+    <form method="post" action="/cuenta/metodos/<%= slug %>/enviar" data-loading class="mt-lg">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <div class="field">
+        <label for="destination"><%= type === 'email' ? 'Correo electrónico' : 'Número de celular' %></label>
+        <input id="destination" name="destination" type="<%= type === 'email' ? 'email' : 'tel' %>" autocomplete="<%= type === 'email' ? 'email' : 'tel' %>" value="<%= destination %>" required autofocus>
+        <% if (type === 'sms') { %><span class="hint">Con código de país. Para Guatemala: +502 seguido de 8 dígitos.</span><% } %>
+      </div>
+      <div class="actions mt-md">
+        <button class="btn btn-primary" type="submit"><span class="spinner" aria-hidden="true"></span>Enviar código</button>
+      </div>
+    </form>
+  <% } else { %>
+    <h1>Escribe el código que te enviamos</h1>
+    <p class="lead">Lo enviamos a <b><%= masked %></b>. <%= type === 'email' ? 'Revisa también la carpeta de spam.' : 'Puede tardar unos segundos.' %></p>
+    <form method="post" action="/cuenta/metodos/<%= slug %>/verificar" data-loading data-otp-form class="mt-lg">
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <div class="field">
+        <label for="code">Código de 6 dígitos</label>
+        <div class="otp-field" data-otp>
+          <div class="otp-cells" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+          <input id="code" name="code" class="otp" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required autofocus>
+        </div>
+      </div>
+      <% if (expiresAt) { %><div class="timer" data-expires="<%= expiresAt %>"><span>El código vence en <strong data-countdown>5:00</strong></span></div><% } %>
+      <div class="actions mt-md">
+        <button class="btn btn-primary" type="submit"><span class="spinner" aria-hidden="true"></span>Confirmar y activar</button>
+      </div>
+    </form>
+    <div class="row mt-md">
+      <form method="post" action="/cuenta/metodos/<%= slug %>/enviar" class="inline-form">
+        <input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="destination" value="<%= destination %>">
+        <button class="btn btn-quiet btn-sm" type="submit" data-resend="<%= resendWait %>">Enviar otro código</button>
+      </form>
+      <form method="post" action="/cuenta/metodos/<%= slug %>/cambiar" class="inline-form">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <button class="btn btn-quiet btn-sm" type="submit"><%= type === 'email' ? 'Usar otro correo' : 'Usar otro número' %></button>
+      </form>
+    </div>
+  <% } %>
+</div>
+<%- include('partials/shell-close') %>

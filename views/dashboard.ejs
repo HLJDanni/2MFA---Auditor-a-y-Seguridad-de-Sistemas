@@ -1,0 +1,84 @@
+<%- include('partials/app-open') %>
+<%
+  const viaText = { totp: 'tu app de autenticación', email: 'un código por correo', sms: 'un código por SMS', respaldo: 'un código de respaldo', dispositivo: 'un dispositivo de confianza' };
+  const via = String(authVia || '').replace('alta-', '');
+  const circ = 2 * Math.PI * 56;
+  const level = sec.score >= 90 ? 'Tu cuenta está muy bien protegida.' : sec.score >= 70 ? 'Tu cuenta está protegida.' : 'Tu cuenta puede estar mejor protegida.';
+%>
+<div class="page-head">
+  <div>
+    <h1>Hola, <%= user.name.split(' ')[0] %></h1>
+    <p class="lead">Entraste con tu contraseña y <%= viaText[via] || 'tu segundo factor' %>, <%= timeAgo(authAt) %>.</p>
+  </div>
+</div>
+
+<section class="status" aria-labelledby="estado">
+  <div class="gauge" data-gauge="<%= sec.score %>">
+    <svg viewBox="0 0 132 132" aria-hidden="true">
+      <circle class="track" cx="66" cy="66" r="56"/>
+      <circle class="val" cx="66" cy="66" r="56" stroke-dasharray="<%= circ.toFixed(1) %>" stroke-dashoffset="<%= (circ * (1 - sec.score / 100)).toFixed(1) %>"/>
+    </svg>
+    <div class="num"><div><b><%= sec.score %></b><span>de 100</span></div></div>
+  </div>
+  <div>
+    <h2 id="estado"><%= level %></h2>
+    <p>Tienes <%= methods.length %> <%= methods.length === 1 ? 'método de verificación activo' : 'métodos de verificación activos' %> y <%= recoveryLeft %> códigos de respaldo sin usar.</p>
+    <% if (sec.tips.length) { %>
+    <ul class="tips"><% sec.tips.forEach(function(t){ %><li><a href="<%= t.href %>"><%= t.text %></a></li><% }) %></ul>
+    <% } %>
+  </div>
+</section>
+
+<div class="grid-2">
+  <div class="stack">
+    <section class="panel" aria-labelledby="metodos">
+      <div class="panel-head"><h2 id="metodos">Métodos de verificación</h2><a href="/cuenta/metodos">Administrar</a></div>
+      <ul class="method-list">
+        <% methods.forEach(function(m){ %>
+        <li>
+          <span class="ico"><%- include('partials/icon', { name: m.type }) %></span>
+          <div>
+            <b><%= m.name %></b><% if (m.is_primary) { %><span class="badge">Principal</span><% } %>
+            <div class="sub"><%= m.masked || 'Código temporal en tu teléfono' %>, usado <%= timeAgo(m.last_used_at) %></div>
+          </div>
+          <span></span>
+        </li>
+        <% }) %>
+        <li>
+          <span class="ico"><%- include('partials/icon', { name: 'respaldo' }) %></span>
+          <div><b>Códigos de respaldo</b><div class="sub"><%= recoveryLeft %> de 10 disponibles</div></div>
+          <a class="btn btn-ghost btn-sm" href="/cuenta/respaldo">Ver</a>
+        </li>
+      </ul>
+    </section>
+
+    <section class="panel" id="dispositivos" aria-labelledby="disp">
+      <div class="panel-head"><h2 id="disp">Dispositivos de confianza</h2></div>
+      <% if (!devices.length) { %>
+        <p class="empty">Ningún dispositivo omite el segundo factor. Al verificar, marca “Recordar este dispositivo” para no escribir el código en tu computadora personal.</p>
+      <% } else { %>
+      <ul class="devices">
+        <% devices.forEach(function(d){ %>
+        <li>
+          <div><b><%= d.label %></b><div class="faint">IP <%= d.ip %>, recordado hasta <%= fmtDate(d.expires_at) %></div></div>
+          <form method="post" action="/cuenta/dispositivos/<%= d.id %>/eliminar" class="inline-form">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <button class="btn btn-danger btn-sm" type="submit">Olvidar</button>
+          </form>
+        </li>
+        <% }) %>
+      </ul>
+      <% } %>
+    </section>
+  </div>
+
+  <section class="panel" aria-labelledby="act">
+    <div class="panel-head"><h2 id="act">Actividad reciente</h2><a href="/cuenta/actividad">Ver todo</a></div>
+    <ul class="timeline">
+      <% activity.forEach(function(a){ %>
+      <li class="sev-<%= a.severity %>"><b><%= label(a.event) %></b><span><%= fmtDate(a.created_at) %>, IP <%= a.ip %></span></li>
+      <% }) %>
+    </ul>
+  </section>
+</div>
+<%- include('partials/app-close') %>

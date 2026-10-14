@@ -1,0 +1,38 @@
+<%- include('partials/shell-open') %>
+<div class="<%= setupMode ? '' : 'panel narrow' %>">
+  <h1><%= replacing ? 'Vincula una nueva app de autenticación' : 'Vincula tu app de autenticación' %></h1>
+  <p class="lead"><%= replacing ? 'Al confirmar, la app anterior deja de funcionar para esta cuenta.' : 'Escanea el código con tu teléfono y escribe el número que aparece para confirmar.' %></p>
+
+  <div class="<%= setupMode ? 'mt-md' : 'enroll mt-lg' %>">
+    <div>
+      <div class="qr"><img src="<%= qr %>" alt="Código QR para vincular tu app de autenticación" width="220" height="220"></div>
+    </div>
+    <div>
+      <ol class="howto">
+        <li>Abre Google Authenticator, Microsoft Authenticator o Authy.</li>
+        <li>Toca “Agregar cuenta” y escanea el código QR.</li>
+        <li>Escribe abajo los 6 dígitos que muestra la app.</li>
+      </ol>
+      <details class="mt-md">
+        <summary class="faint">¿No puedes escanear? Escribe la clave a mano</summary>
+        <div class="secret mt-sm"><span data-copy-src><%= grouped %></span><button type="button" class="btn btn-quiet btn-sm" data-copy aria-label="Copiar clave">Copiar</button></div>
+        <p class="faint mt-sm">Tipo: basada en tiempo. La clave se guarda cifrada (AES-256-GCM) y no volverá a mostrarse.</p>
+      </details>
+
+      <form method="post" action="/cuenta/metodos/totp" data-loading data-otp-form class="mt-md">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <div class="field">
+          <label for="code">Código de la app</label>
+          <div class="otp-field" data-otp>
+            <div class="otp-cells" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+            <input id="code" name="code" class="otp" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required>
+          </div>
+        </div>
+        <div class="actions mt-md">
+          <button class="btn btn-primary" type="submit"><span class="spinner" aria-hidden="true"></span>Confirmar y activar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<%- include('partials/shell-close') %>

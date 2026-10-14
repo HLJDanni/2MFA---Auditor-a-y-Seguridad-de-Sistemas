@@ -1,0 +1,1 @@
+<% if (setupMode) { %><%- include('auth-open', { flow: 'registro', current: 1, topRight: '<a href="/configurar">Elegir otro método</a>' }) %><% } else { %><%- include('app-open') %><a class="back" href="/cuenta/metodos">Volver a métodos de verificación</a><% } %>

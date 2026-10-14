@@ -1,0 +1,263 @@
+===============================================================================
+  CEIBA - SISTEMA DE AUTENTICACION MULTIFACTOR (MFA)
+  Guia para instalar y probar la aplicacion
+  Seguridad y Auditoria de Sistemas - UMG
+===============================================================================
+
+
+-------------------------------------------------------------------------------
+ 1. LO QUE NECESITAS INSTALAR
+-------------------------------------------------------------------------------
+
+  Solo Node.js. No necesitas instalar ninguna base de datos (viene incluida).
+
+  a) Entra a https://nodejs.org
+  b) Descarga la version LTS (boton verde) e instalala con "Next" en todo.
+  c) Cierra y vuelve a abrir cualquier ventana de comandos que tengas abierta.
+
+  Para comprobar que quedo instalado, abre "cmd" y escribe:
+
+      node -v
+      npm -v
+
+  Ambos deben mostrar un numero de version.
+
+  Opcional, para probar la app de autenticacion: instala en tu celular
+  Google Authenticator, Microsoft Authenticator o Authy.
+
+
+-------------------------------------------------------------------------------
+ 2. DESCARGAR EL PROYECTO
+-------------------------------------------------------------------------------
+
+  Opcion A (con Git):
+      git clone https://github.com/HLJDanni/2MFA---Auditor-a-y-Seguridad-de-Sistemas.git
+
+  Opcion B (sin Git):
+      En la pagina del repositorio: boton verde "Code" > "Download ZIP"
+      y descomprime el archivo.
+
+  Recomendacion: guarda la carpeta en una ruta simple, por ejemplo C:\ceiba
+  (evita rutas con caracteres como # porque a veces causan errores).
+
+
+-------------------------------------------------------------------------------
+ 3. INICIAR LA APLICACION
+-------------------------------------------------------------------------------
+
+  FORMA FACIL (Windows):
+      Doble clic en el archivo  iniciar.bat
+      Instala lo necesario, inicia el servidor y abre el navegador.
+      Si la pagina sale en blanco al inicio, espera unos segundos y presiona F5.
+
+  FORMA MANUAL:
+      1. Abre la carpeta del proyecto (la que tiene el archivo package.json).
+      2. Haz clic en la barra de direcciones del Explorador, escribe  cmd
+         y presiona Enter.
+      3. Escribe:
+
+             npm install
+             npm start
+
+      4. Abre en el navegador:  http://localhost:3000
+
+  IMPORTANTE: deja abierta la ventana negra mientras usas la app.
+  Para detener el servidor presiona  Ctrl + C.
+
+
+-------------------------------------------------------------------------------
+ 4. CUENTAS DE PRUEBA
+-------------------------------------------------------------------------------
+
+  Rol            Correo              Contrasena          Segundo factor
+  -------------  ------------------  ------------------  ----------------
+  Usuario        ana@ceiba.test      Quetzal#Lago2026    Correo y SMS
+  Administrador  admin@ceiba.test    Jade#Volcan2026     Correo
+
+  BANDEJA DE DEMOSTRACION:  http://localhost:3000/demo/bandeja
+  Como no hay un servidor de correo ni de SMS configurado, los codigos
+  aparecen ahi (y tambien en la ventana negra). Abrela en otra pestana;
+  se actualiza sola cuando llega un mensaje.
+
+
+-------------------------------------------------------------------------------
+ 5. PRUEBAS FUNCIONALES (PASO A PASO)
+-------------------------------------------------------------------------------
+
+  PRUEBA 1 - Inicio de sesion con codigo por correo
+      1. Abre http://localhost:3000
+      2. Escribe ana@ceiba.test  /  Quetzal#Lago2026  y presiona Continuar.
+      3. Abre la bandeja de demostracion y copia el codigo de 6 digitos.
+      4. Escribelo: al poner el sexto digito se envia solo.
+      Resultado esperado: entras al panel "Hola, Ana".
+
+  PRUEBA 2 - Cambiar de metodo (SMS o codigo de respaldo)
+      1. Inicia sesion de nuevo con Ana.
+      2. En la pantalla del codigo, en "No tienes acceso a este metodo?",
+         elige "Mensaje de texto (SMS)".
+      3. El codigo aparece en el telefono simulado de la bandeja.
+      Resultado esperado: entras con el codigo del SMS.
+
+  PRUEBA 3 - Registro con app de autenticacion (TOTP)
+      1. En la pantalla de login haz clic en "Crear cuenta".
+      2. Llena tus datos. La contrasena debe tener 10+ caracteres,
+         mayusculas, minusculas, un numero y un simbolo.
+         (Observa el medidor de fortaleza y la lista de requisitos.)
+      3. Elige "App de autenticacion" y escanea el QR con tu celular.
+      4. Escribe el codigo que muestra la app.
+      5. Descarga o copia los 10 codigos de respaldo, marca la casilla
+         y continua.
+      6. Cierra sesion y vuelve a entrar: ahora te pide el codigo de la app.
+      Resultado esperado: solo entras con contrasena + codigo del celular.
+
+  PRUEBA 4 - Codigo de respaldo
+      1. Inicia sesion con tu cuenta nueva.
+      2. Elige "Codigo de respaldo" y escribe uno de los que guardaste.
+      3. Intenta usar ese MISMO codigo en otro inicio de sesion.
+      Resultado esperado: la primera vez entra; la segunda lo rechaza.
+
+  PRUEBA 5 - Recordar dispositivo
+      1. Al verificar el codigo, marca "Recordar este dispositivo".
+      2. Cierra sesion y vuelve a entrar.
+      Resultado esperado: no te pide el codigo; el dispositivo aparece en
+      "Dispositivos de confianza" del panel y puedes olvidarlo.
+
+  PRUEBA 6 - Administracion de la cuenta
+      En el menu superior revisa:
+      - Verificacion: agregar otro metodo, hacerlo principal, eliminarlo
+        (pide la contrasena para confirmar).
+      - Respaldo: generar codigos nuevos (pide la contrasena).
+      - Contrasena: cambiarla (cierra los dispositivos de confianza).
+      - Actividad: historial de eventos de seguridad de tu cuenta.
+
+  PRUEBA 7 - Panel de monitoreo (administrador)
+      1. Entra con admin@ceiba.test / Jade#Volcan2026 (codigo en la bandeja).
+      2. Abre "Monitoreo" en el menu.
+      Resultado esperado: indicadores de las ultimas 24 h, grafico por hora,
+      lista de usuarios (con boton para desbloquear) y bitacora de auditoria.
+
+
+-------------------------------------------------------------------------------
+ 6. PRUEBAS DE ATAQUE MANUALES (PARA LA PRESENTACION)
+-------------------------------------------------------------------------------
+
+  ATAQUE 1 - Fuerza bruta sobre la contrasena
+      Escribe 5 veces una contrasena incorrecta para ana@ceiba.test.
+      Resultado esperado: la cuenta se pausa 15 minutos; ni con la
+      contrasena correcta se puede entrar. Llega un correo de alerta.
+      (Para desbloquear: Monitoreo > Desbloquear, o "npm run reset".)
+
+  ATAQUE 2 - Contrasena robada
+      Escribe la contrasena correcta y luego 5 codigos inventados.
+      Resultado esperado: el sistema anula la verificacion y vuelve a pedir
+      la contrasena. El atacante nunca ve el panel.
+
+  ATAQUE 3 - Saltarse el login
+      Sin iniciar sesion, escribe en el navegador:
+          http://localhost:3000/panel
+          http://localhost:3000/admin
+      Resultado esperado: te regresa a la pantalla de inicio de sesion.
+
+  ATAQUE 4 - Usuario normal intenta entrar al panel de administrador
+      Con la sesion de Ana abre http://localhost:3000/admin
+      Resultado esperado: "Sin permiso" (error 403).
+
+  ATAQUE 5 - Codigo vencido
+      Pide un codigo por correo y espera mas de 5 minutos para escribirlo.
+      Resultado esperado: "Ese codigo ya vencio".
+
+  ATAQUE 6 - Enumeracion de usuarios
+      Intenta entrar con un correo que no existe (ej. nadie@ceiba.test).
+      Resultado esperado: el mismo mensaje que con un correo real y
+      contrasena incorrecta; no se revela que cuentas existen.
+
+
+-------------------------------------------------------------------------------
+ 7. PRUEBAS AUTOMATICAS DE ATAQUE (15 ATAQUES)
+-------------------------------------------------------------------------------
+
+  En otra ventana cmd, dentro de la carpeta del proyecto:
+
+      npm run test:ataques
+
+  Tarda alrededor de 1 a 2 minutos. Levanta una copia aislada del sistema
+  (no toca tus datos) y ejecuta por HTTP:
+
+      A1  Fuerza bruta con diccionario contra la contrasena
+      A2  Contrasena robada (el atacante la conoce)
+      A3  Fuerza bruta del codigo de verificacion
+      A4  Reutilizacion de un codigo de la app (replay)
+      A5  Reutilizacion de un codigo de respaldo
+      A6  Uso de un codigo de correo vencido
+      A7  Acceso directo a paginas protegidas
+      A8  Escalada de privilegios a administrador
+      A9  Inyeccion SQL en el formulario de acceso
+      A10 Falsificacion de peticion entre sitios (CSRF)
+      A11 Enumeracion de cuentas registradas
+      A12 Fijacion de sesion
+      A13 Robo de la base de datos
+      A14 Clickjacking, XSS y robo de cookie
+      A15 Ataque masivo desde una misma IP
+
+  Resultado esperado:  "Resultado: 15/15 ataques resistidos"
+
+  El reporte con la evidencia queda en:
+      reports\reporte-ataques.html   (abrelo con doble clic)
+
+
+-------------------------------------------------------------------------------
+ 8. COMANDOS UTILES
+-------------------------------------------------------------------------------
+
+      npm install            Instala las dependencias (solo la primera vez)
+      npm start              Inicia la aplicacion en http://localhost:3000
+      npm run test:ataques   Ejecuta las 15 pruebas de ataque
+      npm run reset          Borra la base de datos y vuelve a los datos
+                             de demostracion (deten el servidor antes)
+
+
+-------------------------------------------------------------------------------
+ 9. PROBLEMAS FRECUENTES
+-------------------------------------------------------------------------------
+
+  "npm no se reconoce como un comando"
+      Node.js no esta instalado o la ventana se abrio antes de instalarlo.
+      Cierrala y abrela de nuevo.
+
+  "la ejecucion de scripts esta deshabilitada en este sistema"
+      Pasa en PowerShell. Usa "cmd" en lugar de PowerShell.
+
+  "EADDRINUSE: address already in use :::3000"
+      Ya hay otra copia del servidor abierta. Cierra la otra ventana negra
+      o usa otro puerto:   set PORT=3001 && npm start
+
+  La cuenta quedo bloqueada durante las pruebas
+      Desbloqueala desde Monitoreo con la cuenta admin, o ejecuta
+      "npm run reset" con el servidor detenido.
+
+  El codigo de la app de autenticacion no funciona
+      Revisa que la hora del celular este en automatico. Los codigos
+      cambian cada 30 segundos y cada uno se acepta una sola vez.
+
+
+-------------------------------------------------------------------------------
+ 10. ENVIO REAL DE CORREOS Y SMS (OPCIONAL)
+-------------------------------------------------------------------------------
+
+  Copia el archivo .env.example como .env y completa:
+
+  Correo con Gmail:
+      SMTP_HOST=smtp.gmail.com
+      SMTP_PORT=587
+      SMTP_USER=tu_correo@gmail.com
+      SMTP_PASS=contrasena de aplicacion de Google
+                (https://myaccount.google.com/apppasswords)
+
+  SMS con Twilio:
+      TWILIO_ACCOUNT_SID=...
+      TWILIO_AUTH_TOKEN=...
+      TWILIO_FROM=numero de Twilio
+
+  Reinicia el servidor despues de guardar el archivo .env.
+
+===============================================================================

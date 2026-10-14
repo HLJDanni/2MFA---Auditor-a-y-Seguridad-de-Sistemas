@@ -1,0 +1,24 @@
+<%- include('head') %>
+<body>
+<a class="sr-only" href="#contenido">Saltar al contenido</a>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="/panel"><%- include('brand') %><span><%= appName %></span></a>
+    <nav class="nav" aria-label="Principal">
+      <% const links = [['/panel','Resumen'],['/cuenta/metodos','Verificación'],['/cuenta/respaldo','Respaldo'],['/cuenta/contrasena','Contraseña'],['/cuenta/actividad','Actividad']];
+         if (user && user.role === 'admin') links.push(['/admin','Monitoreo']);
+         links.forEach(function(l){ const active = path === l[0] || (l[0] !== '/panel' && path.indexOf(l[0]) === 0); %>
+        <a href="<%= l[0] %>" <% if (active) { %>aria-current="page"<% } %>><%= l[1] %></a>
+      <% }) %>
+    </nav>
+    <div class="me">
+      <span class="avatar" aria-hidden="true"><%= initials(user.name) %></span>
+      <form method="post" action="/salir" class="inline-form">
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <button class="btn btn-quiet btn-sm" type="submit">Cerrar sesión</button>
+      </form>
+    </div>
+  </div>
+</header>
+<main class="page" id="contenido">
+<%- include('flash') %>

@@ -1,0 +1,23 @@
+<%- include('partials/auth-open', { flow: 'registro', current: 1 }) %>
+<h1>¿Cómo quieres confirmar que eres tú, <%= firstName %>?</h1>
+<p class="lead">Cada vez que entres, además de tu contraseña te pediremos un código. Elige dónde recibirlo; luego podrás agregar más métodos.</p>
+
+<div class="choice-list">
+  <a class="choice" href="/cuenta/metodos/totp">
+    <span class="ico"><%- include('partials/icon', { name: 'totp' }) %></span>
+    <div><b>App de autenticación</b><span>Google o Microsoft Authenticator, Authy. Funciona sin señal.</span></div>
+    <span class="tag">Más segura</span>
+  </a>
+  <a class="choice" href="/cuenta/metodos/correo">
+    <span class="ico"><%- include('partials/icon', { name: 'email' }) %></span>
+    <div><b>Correo electrónico</b><span>Te enviamos un código cada vez que entres.</span></div>
+    <span></span>
+  </a>
+  <a class="choice" href="/cuenta/metodos/sms">
+    <span class="ico"><%- include('partials/icon', { name: 'sms' }) %></span>
+    <div><b>Mensaje de texto (SMS)</b><span>Código a tu celular. Útil si no usas apps.</span></div>
+    <span></span>
+  </a>
+</div>
+<p class="faint mt-md">Las apps de autenticación generan el código en tu propio teléfono, así que no dependen de la red móvil ni pueden ser interceptadas con un cambio de SIM.</p>
+<%- include('partials/auth-close') %>

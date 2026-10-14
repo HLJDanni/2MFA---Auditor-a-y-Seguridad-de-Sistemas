@@ -1,0 +1,73 @@
+<%- include('partials/app-open') %>
+<div class="page-head">
+  <div>
+    <h1>Monitoreo de seguridad</h1>
+    <p class="lead">Resumen de las últimas 24 horas. Un “acceso detenido por el segundo factor” es alguien que escribió bien la contraseña pero no pudo verificar su identidad.</p>
+  </div>
+</div>
+
+<div class="kpis">
+  <div class="kpi"><b><%= stats.logins24 %></b><span>accesos exitosos</span></div>
+  <div class="kpi"><b><%= stats.pwFails24 %></b><span>contraseñas incorrectas</span></div>
+  <div class="kpi hl"><b><%= stats.stolenStopped %></b><span>accesos detenidos por el segundo factor</span></div>
+  <div class="kpi"><b><%= stats.blocked24 %></b><span>bloqueos automáticos</span></div>
+</div>
+
+<div class="grid-2">
+  <section class="panel" aria-labelledby="horas">
+    <div class="panel-head"><h2 id="horas">Últimas 12 horas</h2>
+      <div class="legend"><span><i class="lg-ok"></i>Accesos</span><span><i class="lg-bad"></i>Intentos fallidos o bloqueados</span></div>
+    </div>
+    <% const max = Math.max(1, ...hours.map(function(h){ return h.ok + h.blocked })); %>
+    <div class="chart" data-chart>
+      <% hours.forEach(function(h){ %>
+      <div class="col" title="<%= h.label %>: <%= h.ok %> accesos, <%= h.blocked %> fallidos">
+        <span class="bar-bad" data-h="<%= (h.blocked / max * 100).toFixed(1) %>"></span>
+        <span class="bar-ok" data-h="<%= (h.ok / max * 100).toFixed(1) %>"></span>
+      </div>
+      <% }) %>
+    </div>
+    <div class="chart-x"><% hours.forEach(function(h){ %><span><%= h.label %></span><% }) %></div>
+  </section>
+
+  <section class="panel" aria-labelledby="usuarios">
+    <div class="panel-head"><h2 id="usuarios">Usuarios</h2><span class="faint"><%= stats.users %> en total, <%= stats.withTotp %> con app</span></div>
+    <ul class="devices">
+      <% list.forEach(function(u){ const locked = u.locked_until && u.locked_until > Date.now(); %>
+      <li>
+        <div>
+          <b><%= u.name %></b><% if (u.role === 'admin') { %><span class="badge badge-ok">Admin</span><% } %><% if (locked) { %><span class="badge">Bloqueado</span><% } %>
+          <div class="faint"><%= u.email %>, métodos: <%= (u.methods || 'ninguno').split(',').map(function(t){ return ({totp:'app',email:'correo',sms:'SMS'})[t] || t }).join(', ') %></div>
+        </div>
+        <% if (locked) { %>
+        <form method="post" action="/admin/usuarios/<%= u.id %>/desbloquear" class="inline-form">
+          <input type="hidden" name="_csrf" value="<%= csrf %>"><button class="btn btn-ghost btn-sm" type="submit">Desbloquear</button>
+        </form>
+        <% } %>
+      </li>
+      <% }) %>
+    </ul>
+  </section>
+</div>
+
+<section class="panel mt-lg" aria-labelledby="bitacora">
+  <div class="panel-head"><h2 id="bitacora">Bitácora de auditoría</h2><span class="faint">Últimos 50 eventos</span></div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Fecha</th><th>Evento</th><th>Nivel</th><th>Cuenta</th><th>IP</th><th>Detalle</th></tr></thead>
+      <tbody>
+      <% events.forEach(function(a){ %>
+        <tr>
+          <td class="nowrap"><%= fmtDate(a.created_at) %></td>
+          <td><%= label(a.event) %></td>
+          <td><span class="sev sev-<%= a.severity %>"><%= a.severity %></span></td>
+          <td><%= a.email || '' %></td>
+          <td class="ip"><%= a.ip %></td>
+          <td class="faint"><%= a.detail || '' %></td>
+        </tr>
+      <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section>
+<%- include('partials/app-close') %>

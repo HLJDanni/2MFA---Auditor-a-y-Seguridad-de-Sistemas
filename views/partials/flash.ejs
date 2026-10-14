@@ -1,0 +1,7 @@
+<% if (flash && flash.length) { %>
+<div class="alerts" role="status">
+  <% flash.forEach(function(f){ const t = f.type === 'error' ? 'error' : f.type === 'ok' ? 'ok' : 'info'; %>
+  <div class="alert alert-<%= t %>"><%- include('icon', { name: t === 'error' ? 'alert' : t }) %><span><%= f.text %></span></div>
+  <% }) %>
+</div>
+<% } %>

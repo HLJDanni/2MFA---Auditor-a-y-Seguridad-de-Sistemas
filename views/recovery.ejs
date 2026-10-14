@@ -1,0 +1,23 @@
+<%- include('partials/app-open') %>
+<div class="panel narrow">
+  <h1>Códigos de respaldo</h1>
+  <p class="lead">Si pierdes tu teléfono o no te llega el código, puedes entrar con uno de estos códigos. Cada uno funciona una sola vez.</p>
+
+  <div class="method-chip">
+    <span class="ico"><%- include('partials/icon', { name: 'respaldo' }) %></span>
+    <div><b><%= remaining %> de 10 códigos disponibles</b><span><%= remaining <= 3 ? 'Te quedan pocos. Genera un juego nuevo.' : 'Guárdalos en un lugar seguro, fuera de tu computadora.' %></span></div>
+  </div>
+
+  <form method="post" action="/cuenta/respaldo" class="mt-lg" data-loading>
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <h2>Generar códigos nuevos</h2>
+    <p class="muted mt-sm">Los códigos anteriores dejarán de funcionar. Por seguridad, confirma tu contraseña.</p>
+    <div class="field mt-md">
+      <label for="current_password">Contraseña actual</label>
+      <input id="current_password" name="current_password" type="password" autocomplete="current-password" required>
+    </div>
+    <div class="actions mt-md"><button class="btn btn-primary" type="submit"><span class="spinner" aria-hidden="true"></span>Generar códigos nuevos</button></div>
+  </form>
+  <p class="faint mt-md">Guardamos solo una huella cifrada (HMAC-SHA256) de cada código, por eso no podemos volver a mostrarte los actuales.</p>
+</div>
+<%- include('partials/app-close') %>

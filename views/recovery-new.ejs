@@ -1,0 +1,23 @@
+<%- include('partials/app-open') %>
+<div class="panel narrow">
+  <% if (firstSetup) { %>
+  <div class="alert alert-ok"><%- include('partials/icon', { name: 'ok' }) %><span>Tu verificación en dos pasos quedó activa. Este es el último paso.</span></div>
+  <% } %>
+  <h1 class="<%= firstSetup ? 'mt-md' : '' %>">Guarda tus códigos de respaldo</h1>
+  <p class="lead">Úsalos si pierdes acceso a tu método de verificación. Solo los verás ahora: descárgalos o cópialos en un lugar seguro.</p>
+
+  <ol class="codes" data-codes><% codes.forEach(function(c){ %><li><%= c %></li><% }) %></ol>
+
+  <div class="row">
+    <button class="btn btn-ghost" type="button" data-download-codes data-filename="ceiba-codigos-respaldo.txt" data-account="<%= user.email %>"><%- include('partials/icon', { name: 'download' }) %>Descargar .txt</button>
+    <button class="btn btn-ghost" type="button" data-copy-codes><%- include('partials/icon', { name: 'copy' }) %><span>Copiar</span></button>
+  </div>
+
+  <div class="field mt-lg">
+    <label class="check"><input type="checkbox" data-confirm-saved> <span>Ya guardé mis códigos en un lugar seguro</span></label>
+  </div>
+  <div class="actions mt-md">
+    <a class="btn btn-primary" href="/panel" data-continue aria-disabled="true">Continuar a mi cuenta</a>
+  </div>
+</div>
+<%- include('partials/app-close') %>

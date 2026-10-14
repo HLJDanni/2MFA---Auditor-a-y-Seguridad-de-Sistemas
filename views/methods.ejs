@@ -1,0 +1,71 @@
+<%- include('partials/app-open') %>
+<div class="page-head">
+  <div>
+    <h1>Métodos de verificación</h1>
+    <p class="lead">Te pedimos uno de estos métodos cada vez que entras. El principal es el que usamos primero; los demás sirven de reserva.</p>
+  </div>
+</div>
+
+<div class="grid-2">
+  <section class="panel" aria-labelledby="activos">
+    <div class="panel-head"><h2 id="activos">Activos</h2></div>
+    <ul class="method-list">
+      <% methods.forEach(function(m){ %>
+      <li>
+        <span class="ico"><%- include('partials/icon', { name: m.type }) %></span>
+        <div>
+          <b><%= m.name %></b><% if (m.is_primary) { %><span class="badge">Principal</span><% } %>
+          <div class="sub"><%= m.masked || 'Código temporal en tu teléfono' %>, agregado <%= fmtDate(m.created_at) %></div>
+        </div>
+        <div class="row-actions">
+          <% if (!m.is_primary) { %>
+          <form method="post" action="/cuenta/metodos/<%= m.type %>/principal" class="inline-form">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <button class="btn btn-ghost btn-sm" type="submit">Hacer principal</button>
+          </form>
+          <% } %>
+          <% if (methods.length > 1) { %>
+          <button class="btn btn-danger btn-sm" type="button" data-open="del-<%= m.type %>">Eliminar</button>
+          <% } %>
+        </div>
+      </li>
+      <% if (methods.length > 1) { %>
+      <li class="confirm" id="del-<%= m.type %>" hidden>
+        <span></span>
+        <form method="post" action="/cuenta/metodos/<%= m.type %>/eliminar" class="confirm-form">
+          <label for="pw-<%= m.type %>">Confirma con tu contraseña para eliminar <%= m.name.toLowerCase() %></label>
+          <div class="row mt-sm">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <input id="pw-<%= m.type %>" name="current_password" type="password" autocomplete="current-password" required>
+            <button class="btn btn-danger btn-sm" type="submit">Eliminar</button>
+          </div>
+        </form>
+      </li>
+      <% } %>
+      <% }) %>
+    </ul>
+    <% if (methods.length === 1) { %>
+      <p class="faint mt-md">Para eliminar este método primero agrega otro. Tu cuenta siempre necesita al menos uno.</p>
+    <% } %>
+  </section>
+
+  <div class="stack">
+    <section class="panel" aria-labelledby="agregar">
+      <div class="panel-head"><h2 id="agregar"><%= missing.length ? 'Agregar un método' : 'Reemplazar un método' %></h2></div>
+      <ul class="method-list">
+        <% (missing.length ? missing : Object.keys(info)).forEach(function(t){ const slug = t === 'email' ? 'correo' : t; %>
+        <li>
+          <span class="ico"><%- include('partials/icon', { name: t }) %></span>
+          <div><b><%= info[t].name %></b><div class="sub"><%= info[t].hint %></div></div>
+          <a class="btn btn-ghost btn-sm" href="/cuenta/metodos/<%= slug %>"><%= missing.length ? 'Agregar' : 'Reemplazar' %></a>
+        </li>
+        <% }) %>
+      </ul>
+    </section>
+    <section class="panel" aria-labelledby="comparar">
+      <div class="panel-head"><h2 id="comparar">¿Cuál conviene?</h2></div>
+      <p class="muted">La <b>app de autenticación</b> es la más resistente: el código se calcula en tu teléfono y no viaja por la red. El <b>correo</b> depende de la seguridad de tu buzón. El <b>SMS</b> es cómodo, pero un atacante podría duplicar tu SIM; úsalo como respaldo.</p>
+    </section>
+  </div>
+</div>
+<%- include('partials/app-close') %>

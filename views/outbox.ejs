@@ -1,0 +1,43 @@
+<%- include('partials/head') %>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="/"><%- include('partials/brand') %><span><%= appName %></span></a>
+    <nav class="nav"><a aria-current="page" href="/demo/bandeja">Bandeja de demostración</a></nav>
+    <button class="btn btn-quiet btn-sm me-refresh" type="button" data-reload>Actualizar</button>
+  </div>
+</header>
+<main class="page" data-outbox-poll>
+  <div class="page-head">
+    <div>
+      <h1>Bandeja de demostración</h1>
+      <p class="lead">Aquí aparecen los correos y SMS que el sistema envía cuando no hay un servidor de correo ni una cuenta de Twilio configurados. Se actualiza sola cuando llega un mensaje nuevo.</p>
+    </div>
+  </div>
+  <div class="alert alert-warn"><%- include('partials/icon', { name: 'info' }) %><span>Solo existe con <span class="mono">DEMO_MODE=true</span>. En producción se desactiva y los códigos viajan únicamente por correo o SMS reales. Correo real: <b><%= emailReal ? 'configurado' : 'no configurado' %></b>. SMS real: <b><%= smsReal ? 'configurado' : 'no configurado' %></b>.</span></div>
+
+  <div class="outbox mt-lg">
+    <section class="panel" aria-labelledby="correos">
+      <div class="panel-head"><h2 id="correos">Correos</h2><span class="faint"><%= emails.length %> recientes</span></div>
+      <% if (!emails.length) { %><p class="empty">Todavía no hay correos. Inicia sesión con una cuenta que use correo como método.</p><% } %>
+      <% emails.forEach(function(m){ const body = m.body.replace(/</g,'&lt;').replace(/(\b\d{6}\b)/g, '<mark>$1</mark>'); %>
+      <article class="mail">
+        <div class="mail-head"><span>Para: <%= m.destination %></span><span><%= timeAgo(m.created_at) %></span></div>
+        <h3><%= m.subject %></h3>
+        <pre><%- body %></pre>
+      </article>
+      <% }) %>
+    </section>
+    <aside class="phone" aria-labelledby="sms-t">
+      <div class="phone-screen">
+        <h3 id="sms-t">Mensajes</h3>
+        <% if (!sms.length) { %><p class="faint">Sin mensajes todavía.</p><% } %>
+        <% sms.slice().reverse().forEach(function(s){ const body = s.body.replace(/</g,'&lt;').replace(/(\b\d{6}\b)/g, '<mark>$1</mark>'); %>
+        <div class="sms"><%- body %><small><%= s.destination %>, <%= timeAgo(s.created_at) %></small></div>
+        <% }) %>
+      </div>
+    </aside>
+  </div>
+</main>
+</body>
+</html>

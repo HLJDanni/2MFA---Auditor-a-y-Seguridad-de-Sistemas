@@ -1,0 +1,43 @@
+<%- include('head') %>
+<%
+  const flows = {
+    login: [
+      { t: 'Contraseña', s: 'Algo que sabes' },
+      { t: 'Código', s: 'Algo que tienes contigo' },
+      { t: 'Acceso', s: 'Entras a tu cuenta' },
+    ],
+    registro: [
+      { t: 'Tus datos', s: 'Nombre, correo y contraseña' },
+      { t: 'Segundo factor', s: 'App, correo o SMS' },
+      { t: 'Respaldo', s: 'Códigos para emergencias' },
+    ],
+  };
+  const list = flows[flow] || flows.login;
+  const stories = {
+    login: { h: 'Tu contraseña sola ya no basta para entrar.', p: 'Aunque alguien la robe, necesitará también el código que solo llega a ti. Así protegemos tu cuenta del phishing y de las filtraciones.' },
+    registro: { h: 'Una cuenta, dos llaves.', p: 'Crear tu cuenta toma un par de minutos: tu contraseña y un segundo factor que solo tú tienes.' },
+  };
+  const story = stories[flow] || stories.login;
+%>
+<body>
+<div class="auth">
+  <aside class="auth-aside">
+    <a class="brand" href="/"><%- include('brand') %><span><%= appName %></span></a>
+    <div class="auth-art<%= current === 0 ? ' animate' : '' %>" aria-hidden="true"><%- include('ceiba-art') %></div>
+    <div class="auth-story">
+      <h2><%= story.h %></h2>
+      <p><%= story.p %></p>
+      <ol class="steps" aria-label="Progreso">
+        <% list.forEach(function(s, i){ %>
+        <li class="<%= i < current ? 'done' : i === current ? 'now' : '' %>" <% if (i === current) { %>aria-current="step"<% } %>>
+          <div><b><%= s.t %></b><span><%= s.s %></span></div>
+        </li>
+        <% }) %>
+      </ol>
+    </div>
+  </aside>
+  <main class="auth-main">
+    <div class="auth-top"><%- typeof topRight !== 'undefined' ? topRight : '' %></div>
+    <div class="auth-body">
+      <div class="auth-card">
+        <%- include('flash') %>

@@ -1,0 +1,85 @@
+<%- include('partials/auth-open', { flow: 'login', current: 1, topRight: '<form method="post" action="/verificar/cancelar" class="inline-form"><input type="hidden" name="_csrf" value="' + csrf + '"><button class="btn btn-quiet btn-sm" type="submit">Usar otra cuenta</button></form>' }) %>
+<%
+  const copy = {
+    totp: { h: 'Abre tu app de autenticación', p: 'Escribe el código de 6 dígitos que muestra tu app para ' + appName + '. Cambia cada 30 segundos.' },
+    email: { h: 'Revisa tu correo', p: 'Te enviamos un código de 6 dígitos. Puede tardar unos segundos en llegar.' },
+    sms: { h: 'Revisa tus mensajes', p: 'Te enviamos un SMS con un código de 6 dígitos.' },
+    respaldo: { h: 'Usa un código de respaldo', p: 'Escribe uno de los códigos que guardaste al activar la verificación. Cada uno funciona una sola vez.' },
+  };
+  const c = copy[method];
+%>
+<h1><%= c.h %>, <%= firstName %></h1>
+<p class="lead"><%= c.p %></p>
+
+<% if (method !== 'respaldo' && current) { %>
+<div class="method-chip">
+  <span class="ico"><%- include('partials/icon', { name: method }) %></span>
+  <div><b><%= current.name %></b><span><%= method === 'totp' ? 'Código temporal en tu teléfono' : 'Enviado a ' + current.masked %></span></div>
+</div>
+<% } %>
+
+<% if (error) { %>
+<div class="alert alert-error mt-md" role="alert" data-otp-error><%- include('partials/icon', { name: 'alert' }) %><span><%= error %></span></div>
+<% } %>
+
+<form method="post" action="/verificar" data-loading data-otp-form>
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <div class="field">
+    <% if (method === 'respaldo') { %>
+      <label for="code">Código de respaldo</label>
+      <input id="code" name="code" type="text" class="mono" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ABCD-EFGH" maxlength="12" required autofocus>
+      <span class="hint">Te quedan <%= recoveryLeft %> códigos sin usar.</span>
+    <% } else { %>
+      <label for="code">Código de verificación</label>
+      <div class="otp-field" data-otp>
+        <div class="otp-cells" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <input id="code" name="code" class="otp" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required autofocus aria-describedby="code-help">
+      </div>
+      <span class="hint" id="code-help">6 dígitos. Se envía solo al completar el último.</span>
+    <% } %>
+  </div>
+
+  <% if (expiresAt) { %>
+  <div class="timer" data-expires="<%= expiresAt %>">
+    <span>El código vence en <strong data-countdown>5:00</strong></span>
+  </div>
+  <% } %>
+
+  <div class="field">
+    <label class="check"><input type="checkbox" name="remember"> <span>Recordar este dispositivo durante <%= trustDays %> días<br><span class="faint">No lo marques en computadoras compartidas.</span></span></label>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-primary btn-block" type="submit"><span class="spinner" aria-hidden="true"></span>Verificar y entrar</button>
+  </div>
+</form>
+
+<% if (method === 'email' || method === 'sms') { %>
+<form method="post" action="/verificar/reenviar" class="mt-sm">
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+  <button class="btn btn-quiet btn-block" type="submit" data-resend="<%= resendWait %>">¿No llegó? Enviar otro código</button>
+</form>
+<% } %>
+
+<div class="other-methods">
+  <h2>¿No tienes acceso a este método?</h2>
+  <ul>
+    <% methods.filter(function(m){ return m.type !== method }).forEach(function(m){ %>
+    <li>
+      <form method="post" action="/verificar/metodo">
+        <input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="metodo" value="<%= m.type %>">
+        <button type="submit"><%- include('partials/icon', { name: m.type }) %><span><%= m.name %></span><small><%= m.masked %></small></button>
+      </form>
+    </li>
+    <% }) %>
+    <% if (method !== 'respaldo') { %>
+    <li>
+      <form method="post" action="/verificar/metodo">
+        <input type="hidden" name="_csrf" value="<%= csrf %>"><input type="hidden" name="metodo" value="respaldo">
+        <button type="submit"><%- include('partials/icon', { name: 'respaldo' }) %><span>Código de respaldo</span><small><%= recoveryLeft %> disponibles</small></button>
+      </form>
+    </li>
+    <% } %>
+  </ul>
+</div>
+<%- include('partials/auth-close') %>
